@@ -39,3 +39,9 @@ next-env.d.ts
 
 # TypeScript incremental cache
 *.tsbuildinfo
+
+# Local room database
+/data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal

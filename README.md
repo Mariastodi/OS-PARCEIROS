@@ -9,11 +9,11 @@ Os nomes são automáticos: Jogador 1, Jogador 2 etc. Não há cadastro ou campo
 
 ## Executar localmente
 
-Requisitos: Node.js 22.13 ou superior e npm.
+Requisitos: Node.js 22.14 (versão fixada em `.node-version`) e npm.
 
 ```sh
 npm ci
-npm run dev -- --host 0.0.0.0
+npm run dev
 ```
 
 Abra o endereço informado pelo terminal (normalmente http://localhost:3000).
@@ -46,10 +46,10 @@ Para ampliar, acrescente termos às listas do arquivo. Termos duplicados são el
 
 ## Funcionamento das salas
 
-- React 19, Vinext/Vite e runtime Cloudflare Workers, preservando a arquitetura original.
+- React 19 e Next.js 16, com servidor Node.js.
 - API em `app/api/rooms/route.ts`; regras em `lib/game.ts`.
-- Cloudflare D1 armazena as salas. O binding lógico **DB** está em `.openai/hosting.json`
-  e em `vite.config.ts`. O banco local é emulado e persistido dentro de `.wrangler`.
+- SQLite armazena as salas, usando o módulo nativo `node:sqlite`, sem serviço externo.
+  O arquivo padrão é `data/rooms.sqlite`; `DATABASE_PATH` permite escolher outro caminho.
 - A tabela `rooms` é criada de forma idempotente no primeiro acesso à API.
   Esta versão não requer ferramenta externa de migração. Alterações futuras de esquema
   precisam de migrações próprias; não apague o banco para atualizar uma publicação.
@@ -69,21 +69,43 @@ Para ampliar, acrescente termos às listas do arquivo. Termos duplicados são el
 - O PIN é um convite: qualquer pessoa que o conhecer pode entrar enquanto a sala estiver
   no lobby. Compartilhe somente com os participantes. Não há contas ou moderação pública.
 
-## Hospedagem
+## Hospedagem gratuita no Render
 
-Este projeto já está associado a um site no Sites. A publicação deve incluir
-`.openai/hosting.json` com `d1: "DB"`, o Worker gerado em `dist/server` e os arquivos estáticos.
-O provisionamento do D1 é feito pela plataforma ao publicar com esse binding.
-O banco de desenvolvimento não é enviado para produção.
+Use **New → Web Service** (não Static Site). Conecte este repositório e preencha:
 
-```sh
-npm run build
-```
+| Campo | Valor |
+| --- | --- |
+| Branch | `main` |
+| Language / Runtime | `Node` |
+| Root Directory | Deixar vazio |
+| Build Command | `npm ci --include=dev && npm run build` |
+| Start Command | `npm start` |
+| Instance Type | `Free` |
+| Health Check Path | `/api/health` |
 
-Não hospede apenas os arquivos estáticos: as salas precisam da API e do banco D1.
-Uma hospedagem alternativa precisa ser compatível com Workers, fornecer um binding D1
-chamado `DB` e adaptar a configuração de publicação. `next start` sozinho não fornece esse binding.
-Apenas editar os arquivos ou executar o build não atualiza o site publicado.
+Variáveis: `NODE_VERSION=22.14.0`, `NODE_ENV=production`,
+`NEXT_TELEMETRY_DISABLED=1` e `DATABASE_PATH=/tmp/os-parceiros/rooms.sqlite`.
+O Render fornece `PORT` automaticamente; o servidor escuta em `0.0.0.0`.
+Também é possível usar **New → Blueprint**: `render.yaml` contém essa configuração.
+Nenhuma chave de API, banco pago ou cartão é configurado pelo projeto.
+
+**Limites do plano gratuito:** o Render suspende serviços após 15 minutos sem tráfego;
+abrir o site novamente pode levar cerca de um minuto. As salas podem desaparecer ao
+reiniciar, suspender ou publicar uma versão nova, pois o disco é temporário. Nesse caso,
+crie uma sala nova. O jogo detecta sessões expiradas. Não faça deploy durante uma partida.
+O contador de 24 horas é o limite máximo da sala, não uma garantia de persistência.
+
+Para manter salas após reiniciar em uma hospedagem com disco persistente, defina
+`DATABASE_PATH` para um arquivo nesse disco. No Render, disco persistente exige plano
+pago e não faz parte da configuração gratuita. Use uma única instância do servidor:
+SQLite local não compartilha salas entre múltiplas instâncias.
+
+A pasta `.openai` e as dependências de Sites/Cloudflare foram removidas nesta migração.
+Não publique apenas arquivos estáticos: as salas precisam do servidor Node.
+A hospedagem antiga não recebe estas alterações automaticamente.
+
+Documentação: [Web Services](https://render.com/docs/web-services),
+[limites gratuitos](https://render.com/docs/free).
 
 ## Verificação
 

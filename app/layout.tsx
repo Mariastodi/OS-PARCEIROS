@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000'),
   title: 'Os Parceiros',
   description: 'Jogue O Impostor com salas por PIN ou passando o celular. Palavras em português e papéis secretos.',
   openGraph: {
