@@ -159,6 +159,7 @@ export function matchReducer(state: Match, action: MatchAction): Match {
       turn: state.turn + 1,
       phase: done ? "results" : "ready",
       answers: [],
+      lastAnswer: -Infinity,
       graded: false,
       vote: null,
     };

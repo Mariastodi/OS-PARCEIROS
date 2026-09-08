@@ -1,5 +1,12 @@
 "use client";
-import { CircleHelp, Fingerprint, Sparkles } from "lucide-react";
+import {
+  CircleHelp,
+  Fingerprint,
+  Sparkles,
+  MessageCircle,
+  Camera,
+  Mail,
+} from "lucide-react";
 import { GameIcon } from "./components/icons";
 import { useState } from "react";
 import Online from "./components/online";
@@ -9,8 +16,15 @@ import { partyGames, type PartyGame } from "@/lib/party";
 type Screen = "home" | "online" | "local" | PartyGame;
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("home");
+  const [onlineGame, setOnlineGame] = useState<"impostor" | PartyGame>(
+    "impostor",
+  );
+  const openRoom = (game: "impostor" | PartyGame) => {
+    setOnlineGame(game);
+    setScreen("online");
+  };
   const home = () => setScreen("home");
-  if (screen === "online") return <Online onBack={home} />;
+  if (screen === "online") return <Online game={onlineGame} onBack={home} />;
   if (screen === "local") return <LocalImpostor onBack={home} />;
   if (screen !== "home") return <PartySetup game={screen} onBack={home} />;
   return (
@@ -37,8 +51,8 @@ export default function Home() {
             PIN ou passem o celular.
           </p>
           <div className="mode-actions">
-            <button className="primary" onClick={() => setScreen("online")}>
-              Jogar com PIN <span>→</span>
+            <button className="primary" onClick={() => openRoom("impostor")}>
+              Jogar com PIN
             </button>
             <button className="add-player" onClick={() => setScreen("local")}>
               Jogar em um celular
@@ -80,7 +94,7 @@ export default function Home() {
             <h3>O Impostor</h3>
             <p>Deem pistas e descubram quem não recebeu a palavra.</p>
             <div className="catalog-actions">
-              <button className="primary" onClick={() => setScreen("online")}>
+              <button className="primary" onClick={() => openRoom("impostor")}>
                 Sala com PIN
               </button>
               <button className="add-player" onClick={() => setScreen("local")}>
@@ -96,15 +110,22 @@ export default function Home() {
               <span className="tag">
                 {id === "heads"
                   ? "COM MOVIMENTOS DO CELULAR"
-                  : "NO MESMO CELULAR"}
+                  : "COM PIN OU NO MESMO CELULAR"}
               </span>
               <h3>{game.title}</h3>
               <p>{game.description}</p>
               <button
                 className="primary"
+                onClick={() => openRoom(id as PartyGame)}
+              >
+                Sala com PIN
+              </button>
+
+              <button
+                className="add-player"
                 onClick={() => setScreen(id as PartyGame)}
               >
-                Jogar {game.title} <span>→</span>
+                Um celular
               </button>
             </article>
           ))}
@@ -131,12 +152,44 @@ export default function Home() {
           </div>
         </div>
       </section>
+      <section className="contact-section" aria-labelledby="contact-title">
+        <div>
+          <span className="eyebrow">O PRÓXIMO JOGO PODE SER SUA IDEIA</span>
+          <h2 id="contact-title">O que você quer jogar por aqui?</h2>
+          <p>
+            Tem uma sugestão, encontrou algo para melhorar ou quer ver um jogo
+            novo? Me conta.
+          </p>
+        </div>
+        <a
+          className="primary contact-whatsapp"
+          href="https://wa.me/5585981370578"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <MessageCircle aria-hidden="true" size={22} /> Mandar uma ideia no
+          WhatsApp
+        </a>
+      </section>
       <footer>
         <div className="brand">
           <span className="brand-mark">P</span>
           <strong>Os Parceiros</strong>
         </div>
-        <a href="#jogos">Voltar aos jogos ↑</a>
+        <nav className="contact-links" aria-label="Contatos de Maria Beatriz">
+          <a href="mailto:mariabeatrizcod@gmail.com">
+            <Mail aria-hidden="true" size={20} />
+            mariabeatrizcod@gmail.com
+          </a>
+          <a
+            href="https://www.instagram.com/mbeatriz.silva/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Camera aria-hidden="true" size={20} />
+            @mbeatriz.silva
+          </a>
+        </nav>
       </footer>
     </main>
   );

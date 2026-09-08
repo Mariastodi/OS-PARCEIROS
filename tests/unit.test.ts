@@ -181,3 +181,102 @@ test("balanced draw: favors less-selected people without making anybody impossib
   assert.ok(!("roleHistory" in publicView));
   assert.ok(!("starterHistory" in publicView));
 });
+
+test("online voting: private votes, duplicate protection, ties and new rounds", () => {
+  const room = newRoom("123456", "Ana", "likely");
+  const bia = addMember(room, "Bia");
+  const ana = room.players[0];
+  assert.throws(() => change(room, bia.token, "start", {}));
+  change(room, ana.token, "start", {});
+  const question = room.word;
+  change(room, ana.token, "vote", { playerId: bia.id, round: room.round });
+  assert.equal(view(room, bia.token).voting?.myVote, null);
+  assert.deepEqual(view(room, bia.token).voting?.results, []);
+  assert.ok(!JSON.stringify(view(room, bia.token)).includes(ana.token));
+  assert.throws(() =>
+    change(room, ana.token, "vote", { playerId: ana.id, round: room.round }),
+  );
+  assert.throws(() =>
+    change(room, bia.token, "vote", { playerId: "missing", round: room.round }),
+  );
+  change(room, bia.token, "vote", { playerId: ana.id, round: room.round });
+  assert.equal(room.phase, "finished");
+  assert.deepEqual(
+    view(room, ana.token).voting?.results.map((player) => player.votes),
+    [1, 1],
+  );
+  change(room, ana.token, "reset", {});
+  change(room, ana.token, "start", {});
+  assert.notEqual(room.word, question);
+  assert.throws(() =>
+    change(room, bia.token, "vote", {
+      playerId: ana.id,
+      round: room.round - 1,
+    }),
+  );
+  change(room, ana.token, "leave", {});
+  assert.equal(room.phase, "lobby");
+  assert.deepEqual(room.votes, {});
+  assert.equal(room.host, bia.id);
+});
+
+for (const game of ["heads", "mime", "challenge", "five"] as const) {
+  test(`online ${game}: turns, permissions, scores, privacy and cleanup`, () => {
+    const room = newRoom("123456", "Ana", game);
+    const bia = addMember(room, "Bia");
+    const ana = room.players[0];
+    change(room, ana.token, "start", {});
+    const send = (token: string, move: string, correct?: boolean) =>
+      change(room, token, "party", {
+        move,
+        correct,
+        turn: room.match!.turn,
+        cursor: view(room, token).party!.cursor,
+        round: room.round,
+      });
+    assert.throws(() => send(bia.token, "start"));
+    for (const player of [ana, bia]) {
+      send(player.token, "start");
+      room.match!.deadline = Date.now() - 1;
+      assert.equal(view(room, player.token).party?.phase, "playing");
+      assert.equal(view(room, player.token).party?.deck, undefined);
+      if (game === "mime")
+        assert.equal(
+          view(room, player.id === ana.id ? bia.token : ana.token).party?.word,
+          null,
+        );
+      const oldCursor = room.match!.cursor;
+      send(player.token, "answer", true);
+      assert.throws(() =>
+        change(room, player.token, "party", {
+          move: "answer",
+          correct: true,
+          turn: room.match!.turn,
+          cursor: oldCursor,
+          round: room.round,
+        }),
+      );
+      if (game === "heads" || game === "mime") send(player.token, "end");
+      send(ana.token, "next");
+    }
+    assert.equal(room.phase, "finished");
+    assert.deepEqual(room.match!.scores, [1, 1]);
+    change(room, ana.token, "reset", {});
+    assert.equal(room.match, undefined);
+    change(room, ana.token, "start", {});
+    change(room, bia.token, "leave", {});
+    assert.equal(room.match, undefined);
+    assert.equal(room.phase, "lobby");
+  });
+}
+
+test("server countdown uses the same deadline for every viewer", async () => {
+  const { advanceParty } = await import("../lib/room-party");
+  const match = matchReducer(
+    newMatch("heads", ["Ana", "Bia"], ["Sol", "Lua"], 30),
+    { type: "start", now: 1000 },
+  );
+  assert.equal(advanceParty(match, 5000).deadline, 34000);
+  assert.equal(advanceParty(match, 8000).deadline, 34000);
+  assert.equal(advanceParty(match, 35000).phase, "review");
+});

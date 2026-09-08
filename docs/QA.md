@@ -4,7 +4,7 @@ Verificação local realizada em 8 de setembro de 2026, com build de produção 
 
 ## Testes automatizados
 
-- 11 testes unitários: nomes, distribuição ponderada dos papéis, seleção sem duplicatas, temporizador, pontuação, fim de rodada e interpretação dos movimentos do aparelho.
+- 17 testes unitários: nomes, distribuição ponderada dos papéis, seleção sem duplicatas, temporizador, pontuação, fim de rodada e interpretação dos movimentos do aparelho.
 - Integração das salas: entradas simultâneas, limite de 20 participantes, autenticação, permissões do anfitrião, privacidade dos papéis, palavra compartilhada, início e encerramento sincronizados, cancelamento, transferência de anfitrião, saída e expulsão.
 - Validação: nomes duplicados e inválidos, alteração do próprio nome, configurações inválidas, sala fechada, origem da requisição, JSON inválido e limite do corpo da requisição.
 - Compilação de produção, TypeScript, ESLint e formatação.
@@ -33,3 +33,9 @@ Este relatório descreve os cenários executados; não representa uma garantia d
 ## Tela de Quem sou eu
 
 A rodada foi verificada no build de produção em paisagem e em retrato com rotação visual da interface. Os botões registraram acertos e passagens nas duas posições. O retorno de acerto apresentou fundo verde-claro e o de passagem, vermelho. A tela permaneceu dentro dos limites do viewport, sem rolagem horizontal. Cabeçalho, instruções e placar não aparecem durante a rodada.
+
+## Salas dos jogos de festa
+
+Os testes cobrem voto único, voto simultâneo, resultado, empates, privacidade das escolhas e rejeição de votos de rodadas anteriores. Para os quatro jogos por turnos, cobrem permissões, temporizador compartilhado, bloqueio de respostas duplicadas, pontuação e limpeza ao sair ou reiniciar. O baralho futuro não é enviado aos celulares e a palavra da Mímica fica visível apenas para a pessoa da vez durante a representação.
+
+A execução HTTP da ampliação para todos os jogos foi bloqueada pela ferramenta por limite de uso. O arquivo `tests/party-rooms.mjs` está disponível para essa verificação; sua execução não foi confirmada nesta revisão. A verificação visual das novas salas em dispositivos reais também permanece pendente.

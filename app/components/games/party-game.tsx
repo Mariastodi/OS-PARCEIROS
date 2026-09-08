@@ -73,7 +73,7 @@ export default function PartySetup({
       <GameHeader onBack={onBack} subtitle={info.title} />
       <section className="setup-wrap">
         <button className="back" onClick={onBack}>
-          ← Todos os jogos
+          Todos os jogos
         </button>
         <div className="setup-heading">
           <div>
@@ -126,7 +126,7 @@ export default function PartySetup({
               disabled={!validPlayers(players)}
               onClick={start}
             >
-              Preparar partida <span>→</span>
+              Preparar partida
             </button>
           </section>
         </div>
@@ -392,7 +392,7 @@ function PartyMatch({
                   {match.turn + 1 >= totalTurns(match) ||
                   match.cursor >= match.deck.length
                     ? "Ver placar"
-                    : "Próxima vez →"}
+                    : "Próxima vez"}
                 </button>
               </>
             )}

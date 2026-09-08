@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "node --import tsx --test tests/unit.test.ts",
-    "test:integration": "node tests/rooms.mjs && node tests/rooms-validation.mjs",
+    "test:integration": "node tests/rooms.mjs && node tests/rooms-validation.mjs && node tests/party-rooms.mjs",
     "format": "prettier --write app lib tests docs scripts/*.mjs README.md package.json tsconfig.json render.yaml postcss.config.mjs",
     "format:check": "prettier --check app lib tests docs scripts/*.mjs README.md package.json tsconfig.json render.yaml postcss.config.mjs",
     "words:refresh": "node scripts/import-words.mjs"

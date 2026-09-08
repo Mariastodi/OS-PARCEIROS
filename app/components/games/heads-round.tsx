@@ -9,12 +9,16 @@ export default function HeadsRound({
   seconds,
   onAnswer,
   onExit,
+  disabled = false,
+  exitLabel = "Sair da partida",
 }: {
   match: Match;
   now: number;
   seconds: number;
   onAnswer: (correct: boolean) => void;
   onExit: () => void;
+  disabled?: boolean;
+  exitLabel?: string;
 }) {
   const preparing = match.phase === "countdown";
   const lastAnswer = match.answers.at(-1);
@@ -29,7 +33,8 @@ export default function HeadsRound({
       <div className="heads-toolbar">
         <button
           className="heads-control"
-          aria-label="Sair da partida"
+          aria-label={exitLabel}
+          disabled={disabled}
           onClick={onExit}
         >
           <X aria-hidden="true" size={24} />
@@ -53,6 +58,7 @@ export default function HeadsRound({
           <button
             className="heads-control"
             aria-label="Passar palavra"
+            disabled={disabled}
             onClick={() => onAnswer(false)}
           >
             <ArrowDown aria-hidden="true" size={28} />
@@ -60,6 +66,7 @@ export default function HeadsRound({
           <button
             className="heads-control"
             aria-label="Marcar acerto"
+            disabled={disabled}
             onClick={() => onAnswer(true)}
           >
             <ArrowUp aria-hidden="true" size={28} />

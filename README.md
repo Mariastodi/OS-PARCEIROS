@@ -16,7 +16,7 @@ Coleção de seis jogos em português para jogar com amigos, em telas de celular
 Nomes de até 24 caracteres, sem repetições na mesma partida. Nas salas, o nome é
 opcional ao entrar e pode ser alterado no lobby. Se ficar vazio, usamos Jogador 1 etc.
 As comparações ignoram maiúsculas e acentos para evitar nomes visualmente confundíveis.
-Os cinco jogos de festa usam o mesmo aparelho; o modo com PIN é exclusivo do Impostor.
+Todos os jogos oferecem salas com PIN e modo presencial em um celular.
 
 ## Quem sou eu? e sensores
 
@@ -69,7 +69,7 @@ Para jogar em vários celulares na mesma rede Wi-Fi, abra em todos eles
 O computador deve permanecer ligado com o servidor em execução. Redes de convidados
 podem bloquear a comunicação entre aparelhos. Fora dessa rede, use uma publicação HTTPS.
 
-## Como jogar com PIN
+## Impostor com PIN
 
 1. Escolha **Jogar com PIN → Criar sala**. Você será o anfitrião. Escolha seu nome antes de criar a sala.
 2. Os amigos abrem o mesmo site, digitam o PIN de seis números e entram.
@@ -80,7 +80,36 @@ podem bloquear a comunicação entre aparelhos. Fora dessa rede, use uma publica
    para revelar a palavra e os impostores, e pode preparar outra rodada na mesma sala.
 
 A conversa e a votação são presenciais ou por uma chamada de voz externa.
-O site não inclui chat ou votação eletrônica.
+O Impostor usa votação em voz alta. O site não inclui chat.
+
+## Os outros jogos com PIN
+
+Escolha **Sala com PIN** no jogo desejado, crie a sala e compartilhe o código.
+De 2 a 20 pessoas podem entrar com seus nomes.
+
+No **Quem é mais provável**, o anfitrião abre uma pergunta. Cada pessoa vota uma
+única vez, inclusive em si mesma se quiser. O resultado aparece automaticamente
+quando todos votarem, com destaque para o mais votado e os totais. Os votos
+individuais ficam privados. Empates destacam todas as pessoas com a maior votação.
+O anfitrião prepara a próxima pergunta; não há contagem de pontos entre perguntas.
+
+Em **Quem sou eu**, **Mímica**, **Desafio Relâmpago** e **5 Segundos**, cada pessoa
+controla sua própria vez. O anfitrião avança para a próxima pessoa após a revisão.
+Tempo, respostas e pontuação ficam na sala. Depois da última vez, todos veem o
+placar e os vencedores; empates são preservados. Na Mímica, somente a pessoa da
+vez recebe a palavra enquanto representa. No Quem sou eu, o aparelho dessa pessoa
+mostra a tela em paisagem e aceita movimentos opcionais ou botões.
+
+As respostas são confirmadas pela turma; não há reconhecimento de voz ou validação
+automática das pistas. Joguem juntos presencialmente ou em uma chamada externa.
+Se alguém sair durante uma partida, a sala volta à preparação e descarta a partida
+em andamento. Se uma pessoa ficar sem conexão, ela pode retornar à mesma aba;
+o anfitrião também pode cancelar a partida e remover participantes antes de recomeçar.
+
+## Sugestões e contato
+
+O rodapé oferece WhatsApp, Instagram e e-mail para enviar ideias ou relatar problemas.
+Os links abrem o serviço escolhido; o site não envia mensagens automaticamente.
 
 ## Palavras
 

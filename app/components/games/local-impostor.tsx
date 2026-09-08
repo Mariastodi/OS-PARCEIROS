@@ -95,7 +95,7 @@ export default function LocalImpostor({ onBack }: { onBack: () => void }) {
         </header>
         <section className="setup-wrap">
           <button className="back" onClick={() => onBack()}>
-            ← Voltar
+            Voltar
           </button>
           <div className="setup-heading">
             <div>
@@ -159,7 +159,7 @@ export default function LocalImpostor({ onBack }: { onBack: () => void }) {
                 disabled={!canStart}
                 onClick={prepareGame}
               >
-                Sortear papéis <span>→</span>
+                Sortear papéis
               </button>
             </aside>
           </div>

@@ -72,7 +72,11 @@ export async function POST(request: Request) {
     if (data.action === "create") {
       await db.prepare("DELETE FROM rooms WHERE expires <= ?").run(Date.now());
       for (let attempt = 0; attempt < 10; attempt++) {
-        const room = newRoom(String(100000 + randomInt(900000)), data.name);
+        const room = newRoom(
+          String(100000 + randomInt(900000)),
+          data.name,
+          data.game,
+        );
         const result = await db
           .prepare(
             "INSERT OR IGNORE INTO rooms (pin, body, expires) VALUES (?, ?, ?)",

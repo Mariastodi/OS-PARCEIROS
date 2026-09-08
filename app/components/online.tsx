@@ -1,11 +1,21 @@
 "use client";
+import OnlineParty from "./online-party";
+import { isPartyRoom, type RoomGame } from "@/lib/room-party";
+import { partyGames } from "@/lib/party";
+import OnlineVoting from "./online-voting";
 import { useEffect, useRef, useState } from "react";
 import type { RoomView } from "@/lib/game";
 import { MAX_NAME_LENGTH } from "@/lib/players";
 import { categories } from "@/lib/words";
 type Session = { pin: string; token: string };
 const storageKey = "parceiros-room";
-export default function Online({ onBack }: { onBack: () => void }) {
+export default function Online({
+  onBack,
+  game = "impostor",
+}: {
+  onBack: () => void;
+  game?: RoomGame;
+}) {
   const [session, setSession] = useState<Session | null>(null);
   const [room, setRoom] = useState<RoomView | null>(null);
   const [pin, setPin] = useState("");
@@ -74,7 +84,7 @@ export default function Online({ onBack }: { onBack: () => void }) {
     };
   }, [session]);
   useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 1000);
+    const timer = setInterval(() => setNow(Date.now()), 100);
     return () => clearInterval(timer);
   }, []);
   useEffect(() => {
@@ -94,6 +104,7 @@ export default function Online({ onBack }: { onBack: () => void }) {
         },
         body: JSON.stringify({
           action,
+          game,
           pin: session?.pin ?? pin,
           name,
           ...extra,
@@ -150,9 +161,13 @@ export default function Online({ onBack }: { onBack: () => void }) {
         {!room && !session && (
           <>
             <button className="back" onClick={onBack}>
-              ← Voltar
+              Voltar
             </button>
-            <span className="eyebrow">JOGO DO IMPOSTOR</span>
+            <span className="eyebrow">
+              {game === "impostor"
+                ? "JOGO DO IMPOSTOR"
+                : partyGames[game].title}
+            </span>
             <h1>Juntos na mesma sala.</h1>
             <p>
               Crie uma sala ou entre com o PIN. Escolha seu nome e reúna a
@@ -176,8 +191,8 @@ export default function Online({ onBack }: { onBack: () => void }) {
               <section className="panel">
                 <h2>Chame a turma</h2>
                 <p>
-                  De 3 a 20 jogadores. Compartilhe o PIN e espere todo mundo
-                  entrar.
+                  De {game !== "impostor" ? 2 : 3} a 20 jogadores. Compartilhe o
+                  PIN e espere todo mundo entrar.
                 </p>
                 <button
                   className="primary wide"
@@ -322,161 +337,177 @@ export default function Online({ onBack }: { onBack: () => void }) {
                 </p>
               </section>
               <section className="panel settings-panel">
-                {room.phase === "lobby" && (
+                {isPartyRoom(room.game) ? (
+                  <OnlineParty
+                    room={room}
+                    busy={busy}
+                    action={action}
+                    now={now + offset.current}
+                    error={error}
+                  />
+                ) : room.game === "likely" ? (
+                  <OnlineVoting room={room} busy={busy} action={action} />
+                ) : (
                   <>
-                    <h2>Preparar rodada</h2>
-                    <label htmlFor="category">Categoria</label>
-                    <select
-                      id="category"
-                      disabled={!host || busy}
-                      value={room.category}
-                      onChange={(e) =>
-                        action("settings", {
-                          category: e.target.value,
-                          impostors: room.impostors,
-                        })
-                      }
-                    >
-                      {categories.map((c) => (
-                        <option key={c}>{c}</option>
-                      ))}
-                    </select>
-                    <label htmlFor="impostors">Impostores</label>
-                    <select
-                      id="impostors"
-                      disabled={!host || busy}
-                      value={room.impostors}
-                      onChange={(e) =>
-                        action("settings", {
-                          category: room.category,
-                          impostors: Number(e.target.value),
-                        })
-                      }
-                    >
-                      {Array.from(
-                        { length: Math.max(2, room.players.length - 1) },
-                        (_, i) => (
-                          <option key={i} value={i + 1}>
-                            {i + 1}
-                          </option>
-                        ),
-                      )}
-                    </select>
-                    {host ? (
-                      <button
-                        className="primary wide"
-                        disabled={busy || room.players.length < 3}
-                        onClick={() => action("start")}
-                      >
-                        Sortear papéis
-                      </button>
-                    ) : (
-                      <p>Aguarde o anfitrião começar.</p>
-                    )}
-                    <p className="hint">
-                      A rodada precisa de pelo menos 3 jogadores.
-                    </p>
-                  </>
-                )}
-                {(room.phase === "reveal" || room.phase === "playing") && (
-                  <>
-                    <span className="eyebrow">RODADA {room.round}</span>
-                    <h2>
-                      {room.phase === "reveal"
-                        ? "Veja seu papel em segredo"
-                        : seconds
-                          ? `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`
-                          : "Hora de votar!"}
-                    </h2>
-                    {revealed ? (
-                      <div className={`private-role ${room.role}`}>
-                        <small>SEU PAPEL</small>
-                        <h3>
-                          {room.role === "impostor"
-                            ? "Você é o impostor!"
-                            : room.word}
-                        </h3>
-                        <p>
-                          {room.role === "impostor"
-                            ? "Descubra a palavra sem ser descoberto."
-                            : "Dê pistas sem entregar a palavra."}
-                        </p>
-                      </div>
-                    ) : (
-                      <p>Proteja sua tela dos curiosos.</p>
-                    )}
-                    <button
-                      className="primary wide"
-                      onClick={() => setRevealed(!revealed)}
-                    >
-                      {revealed ? "Esconder papel" : "Revelar meu papel"}
-                    </button>
-                    {room.phase === "reveal" && !me?.ready && (
-                      <button
-                        className="add-player"
-                        disabled={busy || !revealed}
-                        onClick={() => {
-                          setRevealed(false);
-                          void action("ready");
-                        }}
-                      >
-                        Memorizei, estou pronto
-                      </button>
-                    )}
-                    {host && room.phase === "reveal" && (
-                      <button
-                        className="add-player"
-                        disabled={busy}
-                        onClick={() => action("cancel")}
-                      >
-                        Cancelar rodada e voltar à sala
-                      </button>
-                    )}
-                    {room.phase === "reveal" && me?.ready && (
-                      <p>Você está pronto. Aguardando os demais…</p>
-                    )}
-                    {room.phase === "playing" && (
+                    {room.phase === "lobby" && (
                       <>
-                        <p>
-                          Quem começa: <strong>{room.starter}</strong>
+                        <h2>Preparar rodada</h2>
+                        <label htmlFor="category">Categoria</label>
+                        <select
+                          id="category"
+                          disabled={!host || busy}
+                          value={room.category}
+                          onChange={(e) =>
+                            action("settings", {
+                              category: e.target.value,
+                              impostors: room.impostors,
+                            })
+                          }
+                        >
+                          {categories.map((c) => (
+                            <option key={c}>{c}</option>
+                          ))}
+                        </select>
+                        <label htmlFor="impostors">Impostores</label>
+                        <select
+                          id="impostors"
+                          disabled={!host || busy}
+                          value={room.impostors}
+                          onChange={(e) =>
+                            action("settings", {
+                              category: room.category,
+                              impostors: Number(e.target.value),
+                            })
+                          }
+                        >
+                          {Array.from(
+                            { length: Math.max(2, room.players.length - 1) },
+                            (_, i) => (
+                              <option key={i} value={i + 1}>
+                                {i + 1}
+                              </option>
+                            ),
+                          )}
+                        </select>
+                        {host ? (
+                          <button
+                            className="primary wide"
+                            disabled={busy || room.players.length < 3}
+                            onClick={() => action("start")}
+                          >
+                            Sortear papéis
+                          </button>
+                        ) : (
+                          <p>Aguarde o anfitrião começar.</p>
+                        )}
+                        <p className="hint">
+                          A rodada precisa de pelo menos 3 jogadores.
                         </p>
-                        <p>Dê uma pista por vez. Depois, votem em voz alta.</p>
-                        {host && (
+                      </>
+                    )}
+                    {(room.phase === "reveal" || room.phase === "playing") && (
+                      <>
+                        <span className="eyebrow">RODADA {room.round}</span>
+                        <h2>
+                          {room.phase === "reveal"
+                            ? "Veja seu papel em segredo"
+                            : seconds
+                              ? `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`
+                              : "Hora de votar!"}
+                        </h2>
+                        {revealed ? (
+                          <div className={`private-role ${room.role}`}>
+                            <small>SEU PAPEL</small>
+                            <h3>
+                              {room.role === "impostor"
+                                ? "Você é o impostor!"
+                                : room.word}
+                            </h3>
+                            <p>
+                              {room.role === "impostor"
+                                ? "Descubra a palavra sem ser descoberto."
+                                : "Dê pistas sem entregar a palavra."}
+                            </p>
+                          </div>
+                        ) : (
+                          <p>Proteja sua tela dos curiosos.</p>
+                        )}
+                        <button
+                          className="primary wide"
+                          onClick={() => setRevealed(!revealed)}
+                        >
+                          {revealed ? "Esconder papel" : "Revelar meu papel"}
+                        </button>
+                        {room.phase === "reveal" && !me?.ready && (
+                          <button
+                            className="add-player"
+                            disabled={busy || !revealed}
+                            onClick={() => {
+                              setRevealed(false);
+                              void action("ready");
+                            }}
+                          >
+                            Memorizei, estou pronto
+                          </button>
+                        )}
+                        {host && room.phase === "reveal" && (
                           <button
                             className="add-player"
                             disabled={busy}
-                            onClick={() => action("finish")}
+                            onClick={() => action("cancel")}
                           >
-                            Encerrar e revelar resultado
+                            Cancelar rodada e voltar à sala
                           </button>
+                        )}
+                        {room.phase === "reveal" && me?.ready && (
+                          <p>Você está pronto. Aguardando os demais…</p>
+                        )}
+                        {room.phase === "playing" && (
+                          <>
+                            <p>
+                              Quem começa: <strong>{room.starter}</strong>
+                            </p>
+                            <p>
+                              Dê uma pista por vez. Depois, votem em voz alta.
+                            </p>
+                            {host && (
+                              <button
+                                className="add-player"
+                                disabled={busy}
+                                onClick={() => action("finish")}
+                              >
+                                Encerrar e revelar resultado
+                              </button>
+                            )}
+                          </>
                         )}
                       </>
                     )}
-                  </>
-                )}
-                {room.phase === "finished" && (
-                  <>
-                    <span className="eyebrow">RESULTADO</span>
-                    <h2>{room.word}</h2>
-                    <p>
-                      Impostor{room.spies.length > 1 ? "es" : ""}:{" "}
-                      <strong>
-                        {room.players
-                          .filter((p) => room.spies.includes(p.id))
-                          .map((p) => p.name)
-                          .join(", ")}
-                      </strong>
-                    </p>
-                    {host ? (
-                      <button
-                        className="primary wide"
-                        disabled={busy}
-                        onClick={() => action("reset")}
-                      >
-                        Preparar próxima rodada
-                      </button>
-                    ) : (
-                      <p>Aguarde o anfitrião preparar a próxima rodada.</p>
+                    {room.phase === "finished" && (
+                      <>
+                        <span className="eyebrow">RESULTADO</span>
+                        <h2>{room.word}</h2>
+                        <p>
+                          Impostor{room.spies.length > 1 ? "es" : ""}:{" "}
+                          <strong>
+                            {room.players
+                              .filter((p) => room.spies.includes(p.id))
+                              .map((p) => p.name)
+                              .join(", ")}
+                          </strong>
+                        </p>
+                        {host ? (
+                          <button
+                            className="primary wide"
+                            disabled={busy}
+                            onClick={() => action("reset")}
+                          >
+                            Preparar próxima rodada
+                          </button>
+                        ) : (
+                          <p>Aguarde o anfitrião preparar a próxima rodada.</p>
+                        )}
+                      </>
                     )}
                   </>
                 )}

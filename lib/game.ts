@@ -1,3 +1,13 @@
+import {
+  advanceParty,
+  createParty,
+  isPartyRoom,
+  type RoomGame,
+} from "./room-party";
+import { matchReducer, type Match } from "./party-engine";
+import { type PartyGame } from "./party";
+import { likelyPrompts } from "./party";
+import { randomInt } from "./words";
 import { nameKey, playerName } from "./players";
 import { categories, drawWord } from "./words";
 import { balancedDraw, type DrawHistory } from "./draw";
@@ -8,6 +18,10 @@ export type Player = {
   ready: boolean;
 };
 export type Room = {
+  game?: RoomGame;
+  match?: Match;
+  duration?: number;
+  votes?: Record<string, string>;
   pin: string;
   host: string;
   players: Player[];
@@ -61,10 +75,20 @@ export function addMember(room: Room, requestedName?: unknown) {
   room.players.push(player);
   return player;
 }
-export function newRoom(pin: string, requestedName?: unknown): Room {
+export function newRoom(
+  pin: string,
+  requestedName?: unknown,
+  game: unknown = "impostor",
+): Room {
+  if (
+    typeof game !== "string" ||
+    !["impostor", "likely", "heads", "mime", "challenge", "five"].includes(game)
+  )
+    throw new GameError("Jogo inválido.");
   const player = newPlayer(1, requestedName);
   return {
     pin,
+    game: game as RoomGame,
     host: player.id,
     players: [player],
     nextNumber: 2,
@@ -91,7 +115,42 @@ export function member(room: Room, token: string) {
 }
 export function view(room: Room, token: string) {
   const me = member(room, token);
+  const match = room.match ? advanceParty(room.match) : null;
   return {
+    duration: room.duration ?? 60,
+    party: match
+      ? {
+          ...match,
+          deck: undefined,
+          word:
+            match.phase === "playing" &&
+            (match.game !== "mime" || room.players[match.turn]?.id === me.id)
+              ? match.deck[match.cursor]
+              : null,
+          activePlayer: room.players[match.turn]?.id ?? null,
+        }
+      : null,
+    game: room.game ?? "impostor",
+    voting:
+      room.game === "likely"
+        ? {
+            question: room.phase === "lobby" ? null : room.word,
+            myVote: room.votes?.[me.id] ?? null,
+            count: Object.keys(room.votes ?? {}).length,
+            results:
+              room.phase === "finished"
+                ? room.players
+                    .map((player) => ({
+                      id: player.id,
+                      name: player.name,
+                      votes: Object.values(room.votes ?? {}).filter(
+                        (id) => id === player.id,
+                      ).length,
+                    }))
+                    .sort((a, b) => b.votes - a.votes)
+                : [],
+          }
+        : null,
     pin: room.pin,
     host: room.host,
     me: me.id,
@@ -104,7 +163,8 @@ export function view(room: Room, token: string) {
     endsAt: room.endsAt,
     serverNow: Date.now(),
     role:
-      room.phase === "lobby"
+      room.phase === "lobby" ||
+      (room.game !== "impostor" && room.game !== undefined)
         ? null
         : room.spies.includes(me.id)
           ? "impostor"
@@ -132,6 +192,110 @@ export function change(
     me.id !== room.host
   )
     throw new GameError("Só o anfitrião pode fazer isso.", 403);
+  if (isPartyRoom(room.game)) {
+    if (action === "start") {
+      if (room.phase !== "lobby" || room.players.length < 2)
+        throw new GameError("Aguarde pelo menos 2 jogadores.");
+      room.match = createParty(
+        room.game as PartyGame,
+        room.players.map((player) => player.name),
+        room.category,
+        ["heads", "mime"].includes(room.game!) ? room.duration : undefined,
+      );
+      room.phase = "playing";
+      room.round++;
+      return;
+    }
+    if (action === "settings") {
+      if (
+        room.phase !== "lobby" ||
+        typeof data.category !== "string" ||
+        !categories.includes(data.category) ||
+        ![30, 60, 90].includes(Number(data.duration))
+      )
+        throw new GameError("Configuração inválida.");
+      room.category = data.category;
+      room.duration = Number(data.duration);
+      return;
+    }
+    if (action === "party") {
+      if (!room.match || room.phase !== "playing")
+        throw new GameError("Não há partida em andamento.");
+      room.match = advanceParty(room.match);
+      const match = room.match;
+      if (
+        data.round !== room.round ||
+        data.turn !== match.turn ||
+        data.cursor !== match.cursor
+      )
+        throw new GameError("A rodada mudou. Aguarde a atualização.", 409);
+      const activePlayer = room.players[match.turn]?.id;
+      if (data.move === "next" ? me.id !== room.host : me.id !== activePlayer)
+        throw new GameError("Aguarde sua vez.", 403);
+      if (!["start", "answer", "end", "next"].includes(String(data.move)))
+        throw new GameError("Ação inválida.");
+      if (data.move === "answer" && typeof data.correct !== "boolean")
+        throw new GameError("Resposta inválida.");
+      const now = Date.now();
+      const next =
+        data.move === "answer"
+          ? matchReducer(match, {
+              type: "answer",
+              correct: data.correct as boolean,
+              now,
+            })
+          : matchReducer(match, {
+              type: data.move as "start" | "end" | "next",
+              now,
+            });
+      if (next === match)
+        throw new GameError("Essa ação não está disponível agora.", 409);
+      room.match = next;
+      if (next.phase === "results") room.phase = "finished";
+      return;
+    }
+    if (["ready", "finish", "vote"].includes(action))
+      throw new GameError("Ação indisponível neste jogo.");
+  }
+  if (
+    room.game === "likely" &&
+    ["start", "vote", "finish", "ready", "settings"].includes(action)
+  ) {
+    if (action === "start") {
+      if (room.phase !== "lobby" || room.players.length < 2)
+        throw new GameError("Aguarde pelo menos 2 jogadores.");
+      let available = likelyPrompts.filter(
+        (question) => !room.used.includes(question),
+      );
+      if (!available.length) {
+        room.used = [];
+        available = [...likelyPrompts];
+      }
+      room.word = available[randomInt(available.length)];
+      room.used.push(room.word);
+      room.votes = {};
+      room.round++;
+      room.phase = "playing";
+      room.endsAt = null;
+    } else if (action === "vote") {
+      if (room.phase !== "playing" || data.round !== room.round)
+        throw new GameError("Essa votação já terminou ou mudou.", 409);
+      if (
+        typeof data.playerId !== "string" ||
+        !room.players.some((player) => player.id === data.playerId)
+      )
+        throw new GameError("Escolha alguém da sala.");
+      room.votes ??= {};
+      if (room.votes[me.id])
+        throw new GameError("Seu voto já foi registrado.", 409);
+      room.votes[me.id] = data.playerId;
+      if (room.players.every((player) => room.votes?.[player.id]))
+        room.phase = "finished";
+    } else throw new GameError("Ação indisponível neste jogo.");
+    return;
+  }
+  if (action === "vote")
+    throw new GameError("Esta sala não tem votação eletrônica.");
   if (action === "rename") {
     if (room.phase !== "lobby")
       throw new GameError("Mude seu nome antes de começar a rodada.");
@@ -203,6 +367,8 @@ export function change(
     if (room.phase !== "reveal" && room.phase !== "playing")
       throw new GameError("Não há rodada para cancelar.");
     room.phase = "lobby";
+    room.match = undefined;
+    room.votes = {};
     room.word = "";
     room.spies = [];
     room.endsAt = null;
@@ -213,6 +379,8 @@ export function change(
     if (room.phase !== "finished")
       throw new GameError("Encerre a rodada primeiro.");
     room.phase = "lobby";
+    room.match = undefined;
+    room.votes = {};
     room.word = "";
     room.spies = [];
     room.endsAt = null;
@@ -236,6 +404,8 @@ export function change(
     );
     if (room.phase !== "lobby") {
       room.phase = "lobby";
+      room.match = undefined;
+      room.votes = {};
       room.word = "";
       room.spies = [];
       room.endsAt = null;
