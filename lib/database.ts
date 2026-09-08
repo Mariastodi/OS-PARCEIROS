@@ -1,11 +1,15 @@
-import { DatabaseSync } from 'node:sqlite';
-import { mkdirSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { DatabaseSync } from "node:sqlite";
+import { mkdirSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 
-const globalDatabase = globalThis as typeof globalThis & { roomsDatabase?: DatabaseSync };
+const globalDatabase = globalThis as typeof globalThis & {
+  roomsDatabase?: DatabaseSync;
+};
 export function database() {
   if (!globalDatabase.roomsDatabase) {
-    const filename = resolve(process.env.DATABASE_PATH || './data/rooms.sqlite');
+    const filename = resolve(
+      process.env.DATABASE_PATH || "./data/rooms.sqlite",
+    );
     mkdirSync(dirname(filename), { recursive: true });
     const db = new DatabaseSync(filename);
     db.exec(`PRAGMA journal_mode = WAL;
