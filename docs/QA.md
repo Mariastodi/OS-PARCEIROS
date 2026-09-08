@@ -29,3 +29,7 @@ O sorteio ponderado favorece quem saiu menos e reduz a chance de repetição ime
 No plano gratuito do Render, o serviço pode demorar para responder após inatividade. As salas usam armazenamento temporário e podem ser perdidas em reinícios e novas publicações.
 
 Este relatório descreve os cenários executados; não representa uma garantia de ausência de todo erro possível.
+
+## Tela de Quem sou eu
+
+A rodada foi verificada no build de produção em paisagem e em retrato com rotação visual da interface. Os botões registraram acertos e passagens nas duas posições. O retorno de acerto apresentou fundo verde-claro e o de passagem, vermelho. A tela permaneceu dentro dos limites do viewport, sem rolagem horizontal. Cabeçalho, instruções e placar não aparecem durante a rodada.

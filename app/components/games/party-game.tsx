@@ -1,5 +1,6 @@
 "use client";
 import { GameIcon } from "../icons";
+import HeadsRound from "./heads-round";
 import { useEffect, useReducer, useState } from "react";
 import { categories, poolFor, shuffle } from "@/lib/words";
 import {
@@ -183,6 +184,22 @@ function PartyMatch({
   const ranking = match.players
     .map((name, i) => ({ name, score: match.scores[i] }))
     .sort((a, b) => b.score - a.score);
+  if (heads && ["countdown", "playing"].includes(match.phase)) {
+    return (
+      <main className="heads-immersive">
+        <HeadsRound
+          match={match}
+          now={now}
+          seconds={seconds}
+          onAnswer={answer}
+          onExit={() => setExitOpen(true)}
+        />
+        {exitOpen && (
+          <ConfirmExit onCancel={() => setExitOpen(false)} onExit={onBack} />
+        )}
+      </main>
+    );
+  }
   return (
     <main
       className={`party-surface ${heads && match.phase === "playing" ? "heads-active" : ""}`}

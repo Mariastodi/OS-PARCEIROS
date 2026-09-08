@@ -41,7 +41,9 @@ export function useTilt(
         return;
       }
       setEnabled(true);
-      setStatus("Sensor ativado. Segure a tela na vertical para começar.");
+      setStatus(
+        "Sensor ativado. Deite o celular na testa, com a tela para a turma.",
+      );
     } catch {
       setStatus("Não foi possível ativar o sensor. Use os botões.");
     }
@@ -60,7 +62,7 @@ export function useTilt(
       if (!received) {
         received = true;
         setStatus(
-          "Sensor pronto. Cima: acerto · baixo: passar · volte à vertical.",
+          "Sensor pronto. Cima: acerto · baixo: passar · volte à posição inicial.",
         );
       }
       if (!active || document.hidden) {

@@ -22,10 +22,14 @@ Os cinco jogos de festa usam o mesmo aparelho; o modo com PIN é exclusivo do Im
 
 1. Escolha pessoas/equipes, categoria e tempo.
 2. Antes de começar, toque em **Ativar movimentos**, se quiser usar o sensor.
-3. Segure o celular na testa, tela voltada para a turma e aproximadamente vertical.
+3. Segure o celular deitado na testa, com a tela voltada para a turma.
 4. Após os três segundos de preparação, incline a tela para o céu para marcar acerto,
-   ou para o chão para passar. Volte à vertical antes da próxima ação.
+   ou para o chão para passar. Volte à posição inicial antes da próxima ação.
 5. Ao fim do tempo, confira respostas e passe para a próxima pessoa.
+
+Durante a rodada, a palavra ocupa o centro da tela em paisagem, com botões de
+acerto e passagem. O fundo fica verde-claro ao acertar e vermelho ao passar.
+A interface também se ajusta quando a rotação automática do celular está bloqueada.
 
 Os botões funcionam mesmo sem sensores. A permissão é solicitada apenas ao tocar no
 botão; navegadores compatíveis exigem HTTPS. A detecção usa a normal da tela, funciona

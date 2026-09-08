@@ -27,7 +27,7 @@ export const partyGames: Record<
     description:
       "Celular na testa, pistas da turma e uma corrida contra o tempo.",
     instruction:
-      "Segure o celular na testa com a tela para os amigos. Eles dão pistas sem falar a resposta. Incline a tela para o céu para acertar e para o chão para passar; volte à posição vertical entre palavras. Não solte o aparelho.",
+      "Segure o celular deitado na testa com a tela para os amigos. Eles dão pistas sem falar a resposta. Incline a tela para o céu para acertar e para o chão para passar; volte à posição inicial entre palavras. Não solte o aparelho.",
     duration: 60,
   },
   mime: {
