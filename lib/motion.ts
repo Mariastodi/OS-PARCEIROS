@@ -11,7 +11,6 @@ export const initialTilt = (): TiltState => ({
   since: 0,
   lastAction: -Infinity,
 });
-// Componente vertical da normal da tela: independe de segurar em retrato/paisagem.
 export function screenTilt(
   beta: number | null,
   gamma: number | null,

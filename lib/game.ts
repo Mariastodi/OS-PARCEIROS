@@ -234,7 +234,6 @@ export function change(
       room.impostors,
       Math.max(1, room.players.length - 1),
     );
-    // Uma saída durante a rodada cancela o sorteio para manter os papéis justos.
     if (room.phase !== "lobby") {
       room.phase = "lobby";
       room.word = "";

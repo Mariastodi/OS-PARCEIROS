@@ -5,7 +5,6 @@ export function drawWeights(ids: string[], history: DrawHistory): number[] {
   const minimum = Math.min(...ids.map((id) => history.counts[id] ?? 0));
   return ids.map((id) => {
     const difference = Math.max(0, (history.counts[id] ?? 0) - minimum);
-    // Todos mantêm chance positiva: ninguém descobre o papel por exclusão.
     return Math.max(
       1,
       Math.floor(

@@ -229,7 +229,7 @@ function PartyMatch({
             <button className="primary" onClick={() => act("start")}>
               {match.game === "likely"
                 ? "Mostrar pergunta"
-                : "Estou pronto — começar"}
+                : "Estou pronto: começar"}
             </button>
           </div>
         )}

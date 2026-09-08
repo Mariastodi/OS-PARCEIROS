@@ -1,5 +1,4 @@
 import extraWords from "./data/extra-words.json";
-// Listas editoriais próprias + seleção externa atribuída em docs/WORDS.md.
 export const packs: Record<string, string[]> = Object.fromEntries(
   Object.entries({
     Comidas:

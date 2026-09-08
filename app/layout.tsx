@@ -16,7 +16,7 @@ export const metadata: Metadata = {
         url: "/og.png",
         width: 1200,
         height: 630,
-        alt: "Os Parceiros — Uma sala. Todo mundo joga.",
+        alt: "Os Parceiros: Uma sala. Todo mundo joga.",
       },
     ],
   },

@@ -756,7 +756,6 @@ nav a {
     width: 100%;
   }
 }
-/* Salas mantêm a identidade visual do modo presencial. */
 button,
 a,
 input,
@@ -937,7 +936,6 @@ button:disabled {
     display: none;
   }
 }
-/* Catálogo de jogos */
 .catalog-grid {
   max-width: 1120px;
   margin: 40px auto 0;
@@ -1058,7 +1056,6 @@ footer a {
 .settings-panel p {
   line-height: 1.6;
 }
-/* Partidas presenciais */
 .party-surface {
   min-height: 100dvh;
   background: var(--ink);

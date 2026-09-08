@@ -21,9 +21,7 @@ export default function Online({ onBack }: { onBack: () => void }) {
     try {
       const saved = JSON.parse(sessionStorage.getItem(storageKey) ?? "null");
       if (saved?.pin && saved?.token) setSession(saved);
-    } catch {
-      /* Sem armazenamento, a sessão permanece em memória. */
-    }
+    } catch {}
   }, []);
   function accept(next: RoomView) {
     offset.current = next.serverNow - Date.now();

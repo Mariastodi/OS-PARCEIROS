@@ -44,7 +44,7 @@ export default function Home() {
               Jogar em um celular
             </button>
           </div>
-          <small>3–20 pessoas · Sem cadastro</small>
+          <small>3 a 20 pessoas · Sem cadastro</small>
         </div>
         <div className="hero-art" aria-hidden="true">
           <div className="orbit orbit-one" />

@@ -1,15 +1,15 @@
-# Os Parceiros — Jogos para a turma
+# Os Parceiros
 
 Coleção de seis jogos em português para jogar com amigos, em telas de celular ou computador.
 
-| Jogo                  | Como funciona                                                                    |
-| --------------------- | -------------------------------------------------------------------------------- |
-| O Impostor            | 3–20 pessoas, salas com PIN ou um celular; papéis secretos, pistas e resultado.  |
-| Quem é mais provável? | 2–20 pessoas/equipes, 10 perguntas e placar de indicações.                       |
-| Desafio Relâmpago     | Missões de 20 segundos, uma vez por pessoa, com confirmação da turma.            |
-| Quem sou eu?          | Adivinhação na testa, 30/60/90 segundos, acertos, passes e movimentos opcionais. |
-| Mímica                | Palavras para representar sem falar, com tempo e placar por pessoa/equipe.       |
-| 5 Segundos            | Diga três exemplos de um tema antes de o tempo acabar.                           |
+| Jogo                  | Como funciona                                                                     |
+| --------------------- | --------------------------------------------------------------------------------- |
+| O Impostor            | 3 a 20 pessoas, salas com PIN ou um celular; papéis secretos, pistas e resultado. |
+| Quem é mais provável? | 2 a 20 pessoas/equipes, 10 perguntas e placar de indicações.                      |
+| Desafio Relâmpago     | Missões de 20 segundos, uma vez por pessoa, com confirmação da turma.             |
+| Quem sou eu?          | Adivinhação na testa, 30/60/90 segundos, acertos, passes e movimentos opcionais.  |
+| Mímica                | Palavras para representar sem falar, com tempo e placar por pessoa/equipe.        |
+| 5 Segundos            | Diga três exemplos de um tema antes de o tempo acabar.                            |
 
 **Site:** [os-parceiros.onrender.com](https://os-parceiros.onrender.com)
 
@@ -159,9 +159,7 @@ Para manter salas após reiniciar em uma hospedagem com disco persistente, defin
 pago e não faz parte da configuração gratuita. Use uma única instância do servidor:
 SQLite local não compartilha salas entre múltiplas instâncias.
 
-A pasta `.openai` e as dependências de Sites/Cloudflare foram removidas nesta migração.
 Não publique apenas arquivos estáticos: as salas precisam do servidor Node.
-A hospedagem antiga não recebe estas alterações automaticamente.
 
 Documentação: [Web Services](https://render.com/docs/web-services),
 [limites gratuitos](https://render.com/docs/free).

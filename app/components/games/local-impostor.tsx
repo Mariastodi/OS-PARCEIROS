@@ -192,7 +192,7 @@ export default function LocalImpostor({ onBack }: { onBack: () => void }) {
             <h1>{players[current]}</h1>
             <p>Só {players[current]} pode olhar a próxima tela.</p>
             <button className="primary" onClick={() => setScreen("reveal")}>
-              Sou {players[current]} — revelar
+              Sou {players[current]}: revelar
             </button>
             <div className="privacy">
               <ShieldCheck size={16} /> Proteja sua tela dos curiosos
@@ -211,7 +211,7 @@ export default function LocalImpostor({ onBack }: { onBack: () => void }) {
                 : "Dê pistas sem entregar a palavra."}
             </p>
             <button className="primary" onClick={nextPlayer}>
-              Já memorizei — esconder
+              Já memorizei: esconder
             </button>
           </section>
         )}
